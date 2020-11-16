@@ -6,15 +6,18 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.firebase.auth.FirebaseAuth
+import androidx.fragment.app.Fragment
+import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
@@ -22,31 +25,52 @@ import com.google.firebase.ktx.Firebase
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
+import com.naver.maps.map.util.FusedLocationSource
+import com.soldemom.navermapactivity.fragment.*
+import kotlinx.android.synthetic.main.activity_test.*
 
-class MainActivity : AppCompatActivity(), OnMapReadyCallback {
+class TestActivity : AppCompatActivity(), OnMapReadyCallback {
 
-    var locationPermission = false
+/*    var locationPermission = false
     var latitude = 0.0
     var longitude = 0.0
-    var latLngChecked = false
+    var latLngChecked = false*/
 
     val REQUEST_CODE = 1004
 
-    var auth: FirebaseAuth = Firebase.auth
-    val db: FirebaseFirestore = FirebaseFirestore.getInstance()
     lateinit var mapFragment: MapFragment
+    val auth = Firebase.auth
+    val db = FirebaseFirestore.getInstance()
+
+    private lateinit var locationSource: FusedLocationSource
+    private lateinit var naverMap: NaverMap
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_test)
 
 
+        val adapter = FragmentAdapter(this)
 
-        val fm = supportFragmentManager
-        mapFragment = supportFragmentManager.findFragmentById(R.id.map) as MapFragment?
-            ?: MapFragment.newInstance().also {
-                fm.beginTransaction().add(R.id.map, it).commit()
-            }
+        mapFragment = MapFragment()
+
+        val fragmentList = listOf<Fragment>(
+            mapFragment,
+            AttendListFragment(),
+            MessageFragment(),
+            MyInfoFragment()
+        )
+
+        //각 탭에 해당하는 프래그먼트 생성 후 어댑터에 넣어주기
+        adapter.fragmentList = fragmentList
+        test_view_pager.adapter = adapter
+
+        //ViewPager의 스와이핑으로 넘어가는 기능 없애기
+        test_view_pager.isUserInputEnabled = false
+
+        //ViewPager와 TabLayout을 이어주기
+        TabLayoutMediator(test_tab_layout,test_view_pager) { _,_ ->
+        }.attach()  // attach() 필수!
 
         mapFragment.getMapAsync(this)
 
@@ -64,32 +88,34 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 200
             )
         }
-
 */
 
+        locationSource =
+            FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
 
 
 
     }
 
-    override fun onOptionsItemSelected(item: MenuItem) =
-        if (item.itemId == R.id.menu_logout) {
-            auth.signOut()
-            startActivity(Intent(this,LoginActivity::class.java))
-            true
-        } else {
-            super.onOptionsItemSelected(item)
-        }
-
     override fun onMapReady(naverMap: NaverMap) {
 
-//        val locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
-//        val enabledProviders = locationManager.getProviders(true)
+        this.naverMap = naverMap
+        naverMap.locationSource = locationSource
 
-       /* for (i in enabledProviders) {
+        val locationOverlay = naverMap.locationOverlay
+        locationOverlay.isVisible = true
+
+        naverMap.locationTrackingMode = LocationTrackingMode.Follow
+
+
+
+   /*     val locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+        val enabledProviders = locationManager.getProviders(true)
+
+        for (i in enabledProviders) {
             var location: Location
             if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 location = locationManager.getLastKnownLocation(i)
 
                 latitude = location.latitude
@@ -112,8 +138,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         naverMap.setOnMapLongClickListener { pointF, latLng ->
             val alertDialog = AlertDialog.Builder(this)
-            alertDialog.setTitle("여기에 만들기")
-                .setMessage("스터디 ??")
+            alertDialog.setTitle("모임 만들기")
+                .setMessage("모임을 만드시겠습니까?")
                 .setNegativeButton("취소",null)
                 .setPositiveButton("확인") { _, _ ->
 
@@ -122,13 +148,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     intent.putExtra("latitude",latLng.latitude)
                     intent.putExtra("longitude",latLng.longitude)
                     startActivityForResult(intent,REQUEST_CODE)
-
                 }
                 .create()
                 .show()
         }
-
-
 
         //여기에 DB 받고. addOnSuccess 넣고, for문 돌려서 Marker생성하고
         db.collection("markers")
@@ -144,7 +167,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                         map = naverMap
                         tag = i.id
                         setOnClickListener {
-                            val intent = Intent(this@MainActivity,DetailActivity::class.java)
+                            val intent = Intent(this@TestActivity,DetailActivity::class.java)
                             intent.putExtra("tag",tag as String)
                             startActivity(intent)
                             false
@@ -158,30 +181,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
 
-
-
-
-//
-//        Marker().apply {
-//            position = LatLng(37.5666102, 126.9783881)
-//            map = naverMap
-//        }
-//
-//        Marker().apply {
-//            position = LatLng(37.57000, 126.97618)
-//            icon = MarkerIcons.BLACK
-//            angle = 315f
-//            map = naverMap
-//            captionText = "하이영"
-//        }
-//
-//        Marker().apply {
-//            position = LatLng(37.56500, 126.9783881)
-//            icon = MarkerIcons.BLACK
-//            iconTintColor = Color.RED
-//            alpha = 0.5f
-//            map = naverMap
-//        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -192,17 +191,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         return super.onCreateOptionsMenu(menu)
     }
 
-    override fun onContextItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-
-
-        return super.onContextItemSelected(item)
-    }
 
 
 
     fun showText(text: String) {
-        Toast.makeText(this,text,Toast.LENGTH_SHORT).show()
+        Toast.makeText(this,text, Toast.LENGTH_SHORT).show()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -217,5 +210,39 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     }
 
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        val id = item.itemId
 
+
+        return super.onContextItemSelected(item)
+    }
+
+
+    override fun onOptionsItemSelected(item: MenuItem) =
+        if (item.itemId == R.id.menu_logout) {
+            auth.signOut()
+            startActivity(Intent(this,LoginActivity::class.java))
+            true
+        } else {
+            super.onOptionsItemSelected(item)
+        }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (locationSource.onRequestPermissionsResult(requestCode, permissions,
+                grantResults)) {
+            if (!locationSource.isActivated) { // 권한 거부됨
+                naverMap.locationTrackingMode = LocationTrackingMode.None
+            }
+            return
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    companion object {
+        private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
+    }
 }

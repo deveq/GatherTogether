@@ -1,4 +1,4 @@
-package com.soldemom.navermapactivity
+package com.soldemom.navermapactivity.fragment
 
 import android.os.Bundle
 import android.os.PersistableBundle
@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentActivity
 import com.naver.maps.map.MapFragment
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.OnMapReadyCallback
+import com.soldemom.navermapactivity.R
 
 class MapFragmentActivity : FragmentActivity(), OnMapReadyCallback {
 

@@ -3,6 +3,7 @@ package com.soldemom.navermapactivity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -19,9 +20,11 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        val intent = Intent(this, MainActivity::class.java)
+        val intent = Intent(this, TestActivity3::class.java)
 
         auth = Firebase.auth
+
+        db = FirebaseFirestore.getInstance()
 
         if (auth.currentUser != null) {
             startActivity(intent)
@@ -45,8 +48,16 @@ class LoginActivity : AppCompatActivity() {
             val pw = pw_input.text.toString()
             auth.createUserWithEmailAndPassword(email,pw)
                 .addOnSuccessListener {
-                    startActivity(intent)
-                    finish()
+                    val user = User(it.user!!.uid)
+                    user.name = name_input.text.toString()
+                    user.studyList = listOf<String>()
+                    db.collection("users")
+                        .add(user)
+                        .addOnSuccessListener {
+                            Toast.makeText(this,"가입성공",Toast.LENGTH_SHORT).show()
+                            startActivity(intent)
+                            finish()
+                        }
                 }
                 .addOnFailureListener {
                     AlertDialog.Builder(this).setTitle("가입실패").setPositiveButton("확인",null).create().show()
