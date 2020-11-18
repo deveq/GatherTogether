@@ -9,12 +9,9 @@ import androidx.appcompat.app.AlertDialog
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.ktx.Firebase
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
-import com.naver.maps.map.overlay.InfoWindow
-import com.naver.maps.map.overlay.Marker
 import com.soldemom.navermapactivity.testFrag.DetailAdapter
 import kotlinx.android.synthetic.main.activity_detail.*
 
@@ -25,7 +22,7 @@ class DetailActivity : AppCompatActivity() {
     lateinit var mapFragment: MapFragment
     lateinit var point: Point
     lateinit var latLng: LatLng
-    lateinit var tag: String
+    lateinit var studyId: String
     var memberBelongs: Boolean = false
     lateinit var detailAdapter: DetailAdapter
 
@@ -45,18 +42,19 @@ class DetailActivity : AppCompatActivity() {
 
         val uid = auth.currentUser!!.uid
 
-
+        // Firestore의 document의 id를 studyId에 넣고 intent로 받았음.
+        studyId = intent.getStringExtra("studyId")
 
         attend_btn.setOnClickListener {
 
-            val _tagRef = db.collection("markers").document(tag)
+            val _studyIdRef = db.collection("markers").document(studyId)
             val alertDialog = AlertDialog.Builder(this)
             //이미 가입이 되어있다면
             if (memberBelongs) {
                 alertDialog.setMessage("모임에서 나가시겠습니까?")
                     .setNegativeButton("취소", null)
                     .setPositiveButton("확인") { _, _ ->
-                        _tagRef.update(
+                        _studyIdRef.update(
                             "member",
                             FieldValue.arrayRemove(uid),
                             "currentCount",
@@ -96,11 +94,11 @@ class DetailActivity : AppCompatActivity() {
                 .setPositiveButton("확인") { _, _ ->
 
 
-                    val tagRef = db.collection("markers")
-                        .document(tag)
+                    val studyIdRef = db.collection("markers")
+                        .document(studyId)
 
                     if (memberBelongs) {
-                        tagRef.update(
+                        studyIdRef.update(
                             "member",
                             FieldValue.arrayRemove(uid),
                             "currentCount",
@@ -115,7 +113,7 @@ class DetailActivity : AppCompatActivity() {
                                 finish()
                             }
                     } else {
-                        tagRef.update(
+                        studyIdRef.update(
                             "member",
                             FieldValue.arrayUnion(uid),
                             "currentCount",
@@ -141,13 +139,12 @@ class DetailActivity : AppCompatActivity() {
         }
 
 
-        // Firestore의 document의 id를 tag에 넣고 intent로 받았음.
-        tag = intent.getStringExtra("tag")
+
 
         val markersRef = db.collection("markers")
         val usersRef = db.collection("users")
 
-        markersRef.document(tag).get().addOnSuccessListener {
+        markersRef.document(studyId).get().addOnSuccessListener {
 
             //해당 스터디의 point객체를 받음
             point = it.toObject(Point::class.java)!!

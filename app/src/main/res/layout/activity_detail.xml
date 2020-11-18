@@ -40,7 +40,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toTopOf="@id/cancel_btn"
-        android:padding="20dp"
+        android:paddingLeft="20dp"
         >
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -64,7 +64,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
-                android:text="왕십리스터디2"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintLeft_toRightOf="@id/detail_profile_image"
                 android:layout_marginLeft="30dp"
@@ -88,17 +87,18 @@
                 app:layout_constraintBaseline_toBaselineOf="@id/detail_text_leader"
                 app:layout_constraintLeft_toRightOf="@id/detail_text_leader"
                 android:layout_marginLeft="8dp"
-                android:text="진영"/>
+                />
 
             <View
                 android:id="@+id/detail_horizon1"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#fcfcfc"
+                android:background="#cfcfcf"
                 app:layout_constraintTop_toBottomOf="@id/detail_leader_name"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                android:layout_marginTop="16dp"/>
+                android:layout_marginTop="16dp"
+                android:layout_marginRight="20dp"/>
 
 
             <TextView
@@ -107,7 +107,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="17dp"
                 android:layout_marginBottom="20dp"
-                android:text="빡공하실분 모아여"
                 android:inputType="textMultiLine"
                 android:lines="10"
                 app:layout_constraintTop_toBottomOf="@id/detail_horizon1"
@@ -121,10 +120,11 @@
                 android:id="@+id/detail_horizon2"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#fcfcfc"
+                android:background="#cfcfcf"
                 android:layout_marginTop="20dp"
                 app:layout_constraintTop_toBottomOf="@id/detail_text"
-                app:layout_constraintLeft_toLeftOf="parent"/>
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:layout_marginRight="20dp"/>
 
             <TextView
                 android:id="@+id/detail_participant"
@@ -140,7 +140,6 @@
                 android:id="@+id/detail_member_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="1/6"
                 app:layout_constraintBaseline_toBaselineOf="@id/detail_participant"
                 app:layout_constraintLeft_toRightOf="@id/detail_participant"
                 android:layout_marginLeft="30dp"

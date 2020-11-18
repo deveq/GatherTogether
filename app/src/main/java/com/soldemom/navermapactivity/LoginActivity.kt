@@ -51,8 +51,8 @@ class LoginActivity : AppCompatActivity() {
                     val user = User(it.user!!.uid)
                     user.name = name_input.text.toString()
                     user.studyList = listOf<String>()
-                    db.collection("users")
-                        .add(user)
+                    db.collection("users").document(user.uid)
+                        .set(user)
                         .addOnSuccessListener {
                             Toast.makeText(this,"가입성공",Toast.LENGTH_SHORT).show()
                             startActivity(intent)

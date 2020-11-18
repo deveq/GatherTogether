@@ -1,13 +1,17 @@
 package com.soldemom.navermapactivity.testFrag
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.google.android.material.datepicker.MaterialDatePicker.Builder.datePicker
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -19,6 +23,7 @@ import com.naver.maps.map.NaverMap
 import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
+import com.soldemom.navermapactivity.DetailActivity
 import com.soldemom.navermapactivity.Point
 import com.soldemom.navermapactivity.R
 import kotlinx.android.synthetic.main.new_study_dialog_layout.view.*
@@ -27,12 +32,13 @@ import kotlinx.android.synthetic.main.new_study_dialog_layout.view.*
 class TestMapFrag : Fragment(), OnMapReadyCallback {
     lateinit var locationSource: FusedLocationSource
 
-    var markerList: List<Point> = listOf<Point>()
+    var markerList: MutableList<Point> = mutableListOf<Point>()
     var map: NaverMap? = null
 
     private lateinit var mapView: MapView
     val auth = Firebase.auth
     val db = FirebaseFirestore.getInstance()
+    val intArr = listOf<Int>(2,3,4,5,6,7,8)
 
     lateinit var dialogView: View
 
@@ -45,8 +51,35 @@ class TestMapFrag : Fragment(), OnMapReadyCallback {
         val view = inflater.inflate(R.layout.fragment_test_map, container, false)
 
         dialogView = inflater.inflate(R.layout.new_study_dialog_layout, container, false)
+//        dialogView.dialog_member_count_input.addTextChangedListener(object : TextWatcher {
+//            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+//            }
+//
+//            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+//            }
+//
+//            override fun afterTextChanged(s: Editable?) {
+//                if (s.toString().toInt() !in 2..6) {
+//                    dialogView.dialog_member_count_input_layout.isErrorEnabled = true
+//                    dialogView.dialog_member_count_input_layout.error = "2에서 8사이 숫자를 입력해주세요"
+//
+//                    dialogView.dialog_member_count_input.setText("2")
+//
+//                } else {
+//                    dialogView.dialog_member_count_input_layout.isErrorEnabled = false
+//                }
+//            }
+//        })
 
-        return view
+        dialogView.spinner2
+        val spinnerAdapter = ArrayAdapter<Int>(requireContext(),
+        android.R.layout.simple_spinner_item,
+            intArr
+        )
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        dialogView.spinner2.adapter = spinnerAdapter
+
+         return view
     }
 
 
@@ -81,22 +114,32 @@ class TestMapFrag : Fragment(), OnMapReadyCallback {
                 )
             }
 
+            dialogView.apply{
+                dialog_title_input.setText("")
+                dialog_content_input.setText("")
+            }
+
             val builder = AlertDialog.Builder(requireContext())
                 .setView(dialogView)
                 .setNegativeButton("취소", null)
                 .setPositiveButton("확인") { a, b ->
                     val title = dialogView.dialog_title_input.text.toString()
                     val content = dialogView.dialog_content_input.text.toString()
-                    val memberCount = dialogView.dialog_member_count_input.text.toString().toLong()
+//                    val maxCount = dialogView.dialog_member_count_input.text.toString().toLong()
+                    val maxCount = intArr[dialogView.spinner2.selectedItemPosition]
+
                     val geoPoint = GeoPoint(latLng.latitude, latLng.longitude)
                     val uid = auth.currentUser!!.uid
+
+
 
                     val markerRef2 = db.collection("markers").document()
                     val userRef = db.collection("users").document(uid)
 
                     val point = Point(geoPoint, title).apply {
                         text = content
-                        currentCount = memberCount
+                        currentCount = 1
+                        this.maxCount = maxCount.toLong()
                         leader = uid
                         member = mutableListOf<String>(uid)
                         studyId = markerRef2.id
@@ -104,15 +147,22 @@ class TestMapFrag : Fragment(), OnMapReadyCallback {
 
                     //트랜잭션으로 일괄업로드
                     db.runBatch { batch ->
-                        val aabbaa: String = markerRef2.id
-                        markerRef2.set(point).addOnSuccessListener {
-                            Marker().apply {
-                                position = LatLng(latLng.latitude, latLng.longitude)
-                                map = naverMap
-                            }
-                        }
+                        val markerId: String = markerRef2.id
+//                        markerRef2.set(point).addOnSuccessListener {
+////                            Marker().apply {
+////                                position = LatLng(latLng.latitude, latLng.longitude)
+////                                map = naverMap
+////
+////                            }
+////                            markerList.add(point)
+//
+//
+//                        }
+//
+////                        userRef.update("studyList", FieldValue.arrayUnion(aabbaa))
 
-                        userRef.update("studyList", FieldValue.arrayUnion(aabbaa))
+                        batch.set(markerRef2,point)
+                        batch.update(userRef,"studyList",FieldValue.arrayUnion(markerId))
 
                     }.addOnSuccessListener {
                         Toast.makeText(requireContext(), "다성공~", Toast.LENGTH_SHORT).show()
@@ -122,15 +172,38 @@ class TestMapFrag : Fragment(), OnMapReadyCallback {
             builder.show()
 
         }
-        for (marker in markerList) {
-            Marker().apply {
-                val latitude = marker.geoPoint!!.latitude
-                val longitude = marker.geoPoint!!.longitude
-                val latLng = LatLng(latitude, longitude)
-                position = latLng
-                map = naverMap
+
+        //db가 변경되면 자동으로 업데이트 해줌.
+        //기존에 트랜잭션만 사용한 후 맵에 marker만 추가했을 경우 클릭이벤트처리가 되지 않던 문제 해결
+        db.collection("markers").addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.w("TestMapFrag","snapshot Error",e)
+                return@addSnapshotListener
             }
+
+            markerList = snapshot?.toObjects(Point::class.java) ?: mutableListOf()
+            for (marker in markerList) {
+                Marker().apply {
+                    val latitude = marker.geoPoint!!.latitude
+                    val longitude = marker.geoPoint!!.longitude
+                    val latLng = LatLng(latitude, longitude)
+                    position = latLng
+                    map = naverMap
+                    setOnClickListener {
+                        Toast.makeText(requireContext(),"마커 클릭됨",Toast.LENGTH_SHORT).show()
+                        val intent = Intent(requireContext(), DetailActivity::class.java)
+                        intent.putExtra("studyId", marker.studyId)
+                        startActivity(intent)
+                        false
+                    }
+                }
+            }
+
+
         }
+
+
+
 
 
 
@@ -145,7 +218,7 @@ class TestMapFrag : Fragment(), OnMapReadyCallback {
         super.onResume()
         mapView.onResume()
 
-        //다른 프래그먼트로 넘어갔다가 돌아오면 다시 맵 표시
+        //다른 프래그먼트로 넘어갔다가 돌아오면 다시 맵에 마커 표시
         mapView.getMapAsync(this)
 
     }

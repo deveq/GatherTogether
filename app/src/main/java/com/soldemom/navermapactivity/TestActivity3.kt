@@ -24,7 +24,7 @@ class TestActivity3 : AppCompatActivity() {
 
     val auth = Firebase.auth
     val db = FirebaseFirestore.getInstance()
-    lateinit var markerList: List<Point>
+    lateinit var markerList: MutableList<Point>
     lateinit var viewModel: TestVM
     val mapFrag = TestMapFrag()
 
@@ -71,6 +71,7 @@ class TestActivity3 : AppCompatActivity() {
                     tab.text = nameList[position]
                 }.attach()
             }
+
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {

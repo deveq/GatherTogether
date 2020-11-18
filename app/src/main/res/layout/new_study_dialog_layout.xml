@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:padding="40dp">
@@ -15,43 +16,60 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
-    <EditText
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/dialog_title_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dialog_top_text">
+
+        <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/dialog_title_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="제목 입력"
+            android:inputType="text" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/dialog_content_input_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:background="#efefef"
-        android:hint="제목 입력"
-        android:inputType="text"
-
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dialog_top_text" />
+        app:layout_constraintTop_toBottomOf="@id/dialog_title_input_layout">
 
-
-    <EditText
+        <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/dialog_content_input"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:background="#efefef"
-        android:hint="내용 입력"
-        android:lines="3"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dialog_title_input" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="내용 입력"
+            android:lines="3" />
 
-    <EditText
-        android:id="@+id/dialog_member_count_input"
-        android:layout_width="match_parent"
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/dialog_member_count_text"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:background="#efefef"
-        android:hint="인원 수 입력"
-        android:inputType="textMultiLine"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dialog_content_input" />
+        app:layout_constraintTop_toBottomOf="@id/dialog_content_input_layout"
+        app:layout_constraintLeft_toLeftOf="@+id/dialog_content_input_layout"
+        android:text="인원 수"
+
+        />
+
+    <Spinner
+        android:id="@+id/spinner2"
+        android:layout_width="172dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/dialog_content_input_layout"
+        app:layout_constraintLeft_toRightOf="@id/dialog_member_count_text"
+        />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,7 @@
 package com.soldemom.navermapactivity.testFrag
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -15,7 +16,7 @@ import com.soldemom.navermapactivity.R
 import com.soldemom.navermapactivity.User
 import kotlinx.android.synthetic.main.fragment_test_attend.view.*
 
-class TestAttendFrag : Fragment() {
+class TestAttendFrag() : Fragment() {
 
     val auth = Firebase.auth
     val db = FirebaseFirestore.getInstance()
@@ -30,57 +31,46 @@ class TestAttendFrag : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_test_attend, container, false)
 
-
-
-
         adapter = TestAdapter()
 
-        view.test_recycler_view.adapter = adapter
-        view.test_recycler_view.layoutManager = LinearLayoutManager(requireContext())
+        view.test_recycler_view.also {
+            it.adapter = adapter
+            it.layoutManager = LinearLayoutManager(requireContext())
+        }
 
-
-        db.collection("users").document(auth.currentUser!!.uid).get()
-            .addOnSuccessListener {
-                user = it.toObject(User::class.java)!!
-                db.collection("markers").whereIn("studyId",user.studyList!!)
-                    .get()
-                    .addOnSuccessListener {querySnapshot ->
-                        studyList = querySnapshot.toObjects(Point::class.java)
-
-                        Toast.makeText(requireContext(),"${studyList[0].title}, ${studyList[0].text}",Toast.LENGTH_SHORT).show()
-
-                        adapter.studyList = studyList
-                        adapter.notifyDataSetChanged()
-
-
-
-
-                    }
-            }
-
-
-
+        getStudyListFromDB()
 
         return view
     }
 
     override fun onResume() {
         super.onResume()
+        getStudyListFromDB()
 
+    }
+    
+    fun log(str: String) {
+        Log.d("TestAttend",str)
+    }
+
+    fun getStudyListFromDB() {
         db.collection("users").document(auth.currentUser!!.uid).get()
             .addOnSuccessListener {
                 user = it.toObject(User::class.java)!!
-                db.collection("markers").whereIn("studyId",user.studyList!!)
+                db.collection("markers").whereIn("studyId", user.studyList!!)
                     .get()
-                    .addOnSuccessListener {querySnapshot ->
+                    .addOnSuccessListener { querySnapshot ->
                         studyList = querySnapshot.toObjects(Point::class.java)
 
-                        Toast.makeText(requireContext(),"${studyList[0].title}, ${studyList[0].text}",Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            requireContext(),
+                            "${studyList[0].title}, ${studyList[0].text}",
+                            Toast.LENGTH_SHORT
+                        ).show()
 
                         adapter.studyList = studyList
                         adapter.notifyDataSetChanged()
                     }
             }
-
     }
 }
