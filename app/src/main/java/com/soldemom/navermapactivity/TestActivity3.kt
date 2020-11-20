@@ -3,6 +3,7 @@ package com.soldemom.navermapactivity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.fragment.app.Fragment
@@ -12,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.FirebaseMessaging
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
 import com.soldemom.navermapactivity.fragment.MapFrag
@@ -20,6 +22,7 @@ import kotlinx.android.synthetic.main.activity_test3.*
 
 class TestActivity3 : AppCompatActivity() {
 
+    val tag = "FCM"
     private lateinit var locationSource: FusedLocationSource
 
     val auth = Firebase.auth
@@ -38,6 +41,20 @@ class TestActivity3 : AppCompatActivity() {
         mapFrag.locationSource = locationSource
 
         getMarkers()
+
+//        FirebaseMessaging.getInstance().token.addOnCompleteListener {task ->
+//            if (!task.isSuccessful) {
+//                Log.w(tag, "Fetching FCM registration token failed", task.exception)
+//                return@addOnCompleteListener
+//            }
+//
+//            // 새로운 FCM registration token을 얻음
+//            val token = task.result
+//            db.collection("tokens").add("token" to token!!)
+//
+//            //토큰 확인
+//            Log.d(tag, token)
+//        }
 
 
 

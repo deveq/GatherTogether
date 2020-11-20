@@ -49,14 +49,14 @@
             >
 
             <ImageView
-                android:id="@+id/detail_profile_image"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_android_black_24dp"
-                android:scaleType="fitCenter"
-                />
+            android:id="@+id/detail_profile_image"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_android_black_24dp"
+            android:scaleType="fitCenter"
+            />
 
 
             <TextView
@@ -144,6 +144,19 @@
                 app:layout_constraintLeft_toRightOf="@id/detail_participant"
                 android:layout_marginLeft="30dp"
                 />
+
+            <TextView
+                android:id="@+id/detail_member_approve"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="가입 신청자 목록"
+                android:background="#aabdbdbd"
+                app:layout_constraintTop_toTopOf="@id/detail_participant"
+                app:layout_constraintRight_toRightOf="parent"
+                android:layout_marginRight="32dp"
+                android:visibility="gone"
+                />
+
 
 
             <androidx.recyclerview.widget.RecyclerView

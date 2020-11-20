@@ -3,12 +3,14 @@ package com.soldemom.navermapactivity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.android.synthetic.main.activity_login.*
 
 class LoginActivity : AppCompatActivity() {
@@ -25,6 +27,7 @@ class LoginActivity : AppCompatActivity() {
         auth = Firebase.auth
 
         db = FirebaseFirestore.getInstance()
+
 
         if (auth.currentUser != null) {
             startActivity(intent)
@@ -51,6 +54,7 @@ class LoginActivity : AppCompatActivity() {
                     val user = User(it.user!!.uid)
                     user.name = name_input.text.toString()
                     user.studyList = listOf<String>()
+
                     db.collection("users").document(user.uid)
                         .set(user)
                         .addOnSuccessListener {
@@ -65,6 +69,7 @@ class LoginActivity : AppCompatActivity() {
 
 
         }
+
 
 
 
