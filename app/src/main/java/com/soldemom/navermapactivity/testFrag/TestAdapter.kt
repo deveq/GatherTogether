@@ -1,12 +1,15 @@
 package com.soldemom.navermapactivity.testFrag
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.soldemom.navermapactivity.Point
 import com.soldemom.navermapactivity.R
 
-class TestAdapter : RecyclerView.Adapter<TestViewHolder>() {
+class TestAdapter(
+    val itemLambda: (point: Point) -> Unit
+) : RecyclerView.Adapter<TestViewHolder>() {
 
     var studyList: List<Point> = listOf<Point>()
 
@@ -25,6 +28,9 @@ class TestAdapter : RecyclerView.Adapter<TestViewHolder>() {
         holder.contentView.text = point.text
         holder.titleView.text = point.title
         holder.memberView.text = "${point.currentCount}/${point.maxCount}"
+        holder.itemView.setOnClickListener {
+            itemLambda(point)
+        }
 
 
     }

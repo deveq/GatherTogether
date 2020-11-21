@@ -1,5 +1,6 @@
 package com.soldemom.navermapactivity.testFrag
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import com.soldemom.navermapactivity.DetailActivity
 import com.soldemom.navermapactivity.Point
 import com.soldemom.navermapactivity.R
 import com.soldemom.navermapactivity.User
@@ -31,12 +33,15 @@ class TestAttendFrag() : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_test_attend, container, false)
 
-        adapter = TestAdapter()
+        adapter = TestAdapter(::itemLambda)
 
         view.test_recycler_view.also {
             it.adapter = adapter
             it.layoutManager = LinearLayoutManager(requireContext())
         }
+
+
+
 
         getStudyListFromDB()
 
@@ -62,15 +67,15 @@ class TestAttendFrag() : Fragment() {
                     .addOnSuccessListener { querySnapshot ->
                         studyList = querySnapshot.toObjects(Point::class.java)
 
-                        Toast.makeText(
-                            requireContext(),
-                            "${studyList[0].title}, ${studyList[0].text}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-
                         adapter.studyList = studyList
                         adapter.notifyDataSetChanged()
                     }
             }
+    }
+
+    fun itemLambda(point: Point) {
+        val intent = Intent(requireActivity(), DetailActivity::class.java)
+        intent.putExtra("studyId",point.studyId)
+        startActivity(intent)
     }
 }
