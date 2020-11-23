@@ -51,7 +51,7 @@ class DetailActivity : AppCompatActivity() {
 
         val list = mutableListOf<Fragment>(
             StudyInfoFragment(studyId),
-            DetailChatFragment()
+            DetailChatFragment(studyId)
         )
 
         val adapter = DetailFragAdapter(this)

@@ -59,18 +59,26 @@ class TestAttendFrag() : Fragment() {
     }
 
     fun getStudyListFromDB() {
+
         db.collection("users").document(auth.currentUser!!.uid).get()
             .addOnSuccessListener {
                 user = it.toObject(User::class.java)!!
-                db.collection("markers").whereIn("studyId", user.studyList!!)
-                    .get()
-                    .addOnSuccessListener { querySnapshot ->
-                        studyList = querySnapshot.toObjects(Point::class.java)
+                if (user.studyList!!.isNotEmpty()) {
+                    db.collection("markers").whereIn("studyId", user.studyList!!)
+                        .get()
+                        .addOnSuccessListener { querySnapshot ->
+                            studyList = querySnapshot.toObjects(Point::class.java)
 
-                        adapter.studyList = studyList
-                        adapter.notifyDataSetChanged()
-                    }
-            }
+                            adapter.studyList = studyList
+                            adapter.notifyDataSetChanged()
+                        }
+                } else {
+                    view!!.test_recycler_view.visibility = View.GONE
+                    view!!.test_empty_list.visibility = View.VISIBLE
+
+                }
+
+                }
     }
 
     fun itemLambda(point: Point) {
