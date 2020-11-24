@@ -26,14 +26,20 @@ import com.naver.maps.map.util.FusedLocationSource
 import com.soldemom.navermapactivity.DetailActivity
 import com.soldemom.navermapactivity.Point
 import com.soldemom.navermapactivity.R
+import com.soldemom.navermapactivity.kakaoLocal.RetrofitHelper
+import com.soldemom.navermapactivity.kakaoLocal.RetrofitService
 import kotlinx.android.synthetic.main.new_study_dialog_layout.view.*
-
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class TestMapFrag : Fragment(), OnMapReadyCallback {
     lateinit var locationSource: FusedLocationSource
 
     var markerList: MutableList<Point> = mutableListOf<Point>()
     var map: NaverMap? = null
+    lateinit var kakaoAppKey : String
+    lateinit var address: String
 
     private lateinit var mapView: MapView
     val auth = Firebase.auth
@@ -47,29 +53,11 @@ class TestMapFrag : Fragment(), OnMapReadyCallback {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // ...
         val view = inflater.inflate(R.layout.fragment_test_map, container, false)
 
+        kakaoAppKey = getString(R.string.kakao_local_app_key)
+
         dialogView = inflater.inflate(R.layout.new_study_dialog_layout, container, false)
-//        dialogView.dialog_member_count_input.addTextChangedListener(object : TextWatcher {
-//            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-//            }
-//
-//            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-//            }
-//
-//            override fun afterTextChanged(s: Editable?) {
-//                if (s.toString().toInt() !in 2..6) {
-//                    dialogView.dialog_member_count_input_layout.isErrorEnabled = true
-//                    dialogView.dialog_member_count_input_layout.error = "2에서 8사이 숫자를 입력해주세요"
-//
-//                    dialogView.dialog_member_count_input.setText("2")
-//
-//                } else {
-//                    dialogView.dialog_member_count_input_layout.isErrorEnabled = false
-//                }
-//            }
-//        })
 
         dialogView.spinner2
         val spinnerAdapter = ArrayAdapter<Int>(requireContext(),
@@ -82,31 +70,33 @@ class TestMapFrag : Fragment(), OnMapReadyCallback {
          return view
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mapView = view.findViewById(R.id.testMapView)
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
-
-
     }
 
-
     override fun onMapReady(naverMap: NaverMap) {
-/*        if (map == null) {
-            map = naverMap
-
-
-            if (!locationSource.isActivated) {
-                naverMap.locationSource = locationSource
-                naverMap.locationTrackingMode = LocationTrackingMode.None
-            }
-
-
-        }*/
 
         naverMap.setOnMapLongClickListener { _, latLng ->
+
+            val retrofit = RetrofitHelper.getRetrofit()
+            val retrofitService = retrofit.create(RetrofitService::class.java)
+            retrofitService
+                .getByGeo(kakaoAppKey, latLng.longitude, latLng.latitude)
+                .enqueue(object: Callback<DocAddr>{
+                    override fun onResponse(call: Call<DocAddr>, response: Response<DocAddr>) {
+                        if (response.isSuccessful) {
+                            val doc = response.body()!!
+                            address = doc.documents[1].address_name
+                        }
+
+                    }
+
+                    override fun onFailure(call: Call<DocAddr>, t: Throwable) {
+                    }
+                })
 
             if (dialogView.getParent() != null) {
                 (dialogView.getParent() as ViewGroup).removeView(
@@ -122,7 +112,7 @@ class TestMapFrag : Fragment(), OnMapReadyCallback {
             val builder = AlertDialog.Builder(requireContext())
                 .setView(dialogView)
                 .setNegativeButton("취소", null)
-                .setPositiveButton("확인") { a, b ->
+                .setPositiveButton("확인") { _, _ ->
                     val title = dialogView.dialog_title_input.text.toString()
                     val content = dialogView.dialog_content_input.text.toString()
 //                    val maxCount = dialogView.dialog_member_count_input.text.toString().toLong()
@@ -130,8 +120,6 @@ class TestMapFrag : Fragment(), OnMapReadyCallback {
 
                     val geoPoint = GeoPoint(latLng.latitude, latLng.longitude)
                     val uid = auth.currentUser!!.uid
-
-
 
                     val markerRef2 = db.collection("markers").document()
                     val userRef = db.collection("users").document(uid)
@@ -143,24 +131,12 @@ class TestMapFrag : Fragment(), OnMapReadyCallback {
                         leader = uid
                         member = mutableListOf<String>(uid)
                         studyId = markerRef2.id
+                        address = this@TestMapFrag.address
                     }
 
                     //트랜잭션으로 일괄업로드
                     db.runBatch { batch ->
                         val markerId: String = markerRef2.id
-//                        markerRef2.set(point).addOnSuccessListener {
-////                            Marker().apply {
-////                                position = LatLng(latLng.latitude, latLng.longitude)
-////                                map = naverMap
-////
-////                            }
-////                            markerList.add(point)
-//
-//
-//                        }
-//
-////                        userRef.update("studyList", FieldValue.arrayUnion(aabbaa))
-
                         batch.set(markerRef2,point)
                         batch.update(userRef,"studyList",FieldValue.arrayUnion(markerId))
 
@@ -198,15 +174,7 @@ class TestMapFrag : Fragment(), OnMapReadyCallback {
                     }
                 }
             }
-
-
         }
-
-
-
-
-
-
     }
 
     override fun onStart() {

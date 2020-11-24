@@ -72,6 +72,7 @@ class TestActivity3 : AppCompatActivity() {
 
                 val fragList = listOf<Fragment>(
                     mapFrag,
+                    SearchFragment(),
                     TestAttendFrag(),
                     TestInfoFrag()
                 )
@@ -82,7 +83,7 @@ class TestActivity3 : AppCompatActivity() {
 
                 testViewPager.isUserInputEnabled = false
                 
-                val nameList = listOf<String>("찾기","가입목록","정보")
+                val nameList = listOf<String>("지도찾기","리스트찾기","가입목록","정보")
 
                 TabLayoutMediator(testTab, testViewPager) { tab, position ->
                     tab.text = nameList[position]

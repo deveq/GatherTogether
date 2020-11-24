@@ -19,6 +19,7 @@ import com.soldemom.navermapactivity.Chat
 import com.soldemom.navermapactivity.R
 import com.soldemom.navermapactivity.User
 import kotlinx.android.synthetic.main.fragment_detail_chat.view.*
+import java.text.SimpleDateFormat
 
 
 class DetailChatFragment(val studyId: String) : Fragment() {
@@ -29,6 +30,7 @@ class DetailChatFragment(val studyId: String) : Fragment() {
     val db = FirebaseFirestore.getInstance()
     lateinit var user: User
     lateinit var adapter: DetailChatAdapter
+    var dateTemp: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -84,6 +86,17 @@ class DetailChatFragment(val studyId: String) : Fragment() {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                 val chat = snapshot.getValue(Chat::class.java)
                 chat?.apply {
+                    val sdf = SimpleDateFormat("yyyy. MM. dd.")
+                    val date = sdf.format(chat.time)
+                    Log.d("Chat","$date 입니당")
+
+                    if (dateTemp == null || dateTemp != date) {
+                        Log.d("Chat","$date 입니당")
+                        val dateChat = Chat(0,date,"")
+                        dateChat.type = 1
+                        chatList.add(dateChat)
+                        dateTemp = date
+                    }
                     chatList.add(this)
                 }
                 adapter.chatList = chatList

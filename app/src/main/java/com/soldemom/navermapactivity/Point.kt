@@ -24,4 +24,6 @@ data class Point(var geoPoint: GeoPoint? = null, var title: String? = null) {
     var studyId: String? = null
     //가입 대기목록
     val waitingMember= mapOf<String, String>()
+    //주소
+    var address: String? = null
 }
