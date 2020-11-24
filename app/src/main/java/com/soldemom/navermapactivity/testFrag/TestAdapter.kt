@@ -11,7 +11,7 @@ class TestAdapter(
     val itemLambda: (point: Point) -> Unit
 ) : RecyclerView.Adapter<TestViewHolder>() {
 
-    var studyList: List<Point> = listOf<Point>()
+    var studyList: MutableList<Point> = mutableListOf<Point>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TestViewHolder {
 

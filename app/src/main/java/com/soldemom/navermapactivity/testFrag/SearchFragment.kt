@@ -78,13 +78,14 @@ class SearchFragment : Fragment() {
             retrofitService.getByAdd(appKey,inputAddress).enqueue(object : Callback<DocAddr> {
                 override fun onResponse(call: Call<DocAddr>, response: Response<DocAddr>) {
                     if (response.isSuccessful) {
+
                         val inputResult = response.body()!!
 
 
                         Log.d("주소", "검색되서 나온 애는 ${inputResult.documents[0].address_name}")
                         //검색된 주소가 2개 이상이라면
                         if (inputResult.documents.size >= 2) {
-
+                            view.search_list_empty_text.visibility = View.GONE
                             for (doc in inputResult.documents) {
                                 doc.changeDepth1()
                             }
@@ -131,11 +132,9 @@ class SearchFragment : Fragment() {
                                     }
                             }
 
-
-
-
                         }
-                        else {
+                        else if(inputResult.documents.size == 1){
+                            view.search_list_empty_text.visibility = View.GONE
                             inputResult.documents[0].changeDepth1()
                             selectedAddress = inputResult.documents[0].address_name
                             Log.d("안쪽주소", selectedAddress)
@@ -149,6 +148,8 @@ class SearchFragment : Fragment() {
                                 }
 
 
+                        } else {
+                            view.search_list_empty_text.visibility = View.VISIBLE
                         }
                     }
                 }

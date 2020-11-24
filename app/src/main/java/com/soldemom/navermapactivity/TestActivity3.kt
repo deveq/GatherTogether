@@ -75,30 +75,30 @@ class TestActivity3 : AppCompatActivity() {
 
     }
 
-    override fun onContextItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
+//    override fun onContextItemSelected(item: MenuItem): Boolean {
+//        val id = item.itemId
+//
+//
+//        return super.onContextItemSelected(item)
+//    }
 
 
-        return super.onContextItemSelected(item)
-    }
+//    override fun onOptionsItemSelected(item: MenuItem) =
+//        if (item.itemId == R.id.menu_logout) {
+//            auth.signOut()
+//            startActivity(Intent(this,LoginActivity::class.java))
+//            true
+//        } else {
+//            super.onOptionsItemSelected(item)
+//        }
 
-
-    override fun onOptionsItemSelected(item: MenuItem) =
-        if (item.itemId == R.id.menu_logout) {
-            auth.signOut()
-            startActivity(Intent(this,LoginActivity::class.java))
-            true
-        } else {
-            super.onOptionsItemSelected(item)
-        }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-
-        val inflater = menuInflater
-        inflater.inflate(R.menu.menu_list,menu)
-
-        return super.onCreateOptionsMenu(menu)
-    }
+//    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+//
+//        val inflater = menuInflater
+//        inflater.inflate(R.menu.menu_list,menu)
+//
+//        return super.onCreateOptionsMenu(menu)
+//    }
 
 
     companion object {

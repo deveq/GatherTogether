@@ -23,8 +23,9 @@ class TestAttendFrag() : Fragment() {
     val auth = Firebase.auth
     val db = FirebaseFirestore.getInstance()
     lateinit var user: User
-    lateinit var studyList: List<Point>
-    lateinit var adapter: TestAdapter
+    lateinit var studyList: MutableList<Point>
+//    lateinit var adapter: TestAdapter
+    lateinit var adapter: SearchAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,15 +34,13 @@ class TestAttendFrag() : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_test_attend, container, false)
 
-        adapter = TestAdapter(::itemLambda)
+        adapter = SearchAdapter(::itemLambda)
+        adapter.studyList = mutableListOf()
 
         view.test_recycler_view.also {
             it.adapter = adapter
             it.layoutManager = LinearLayoutManager(requireContext())
         }
-
-
-
 
         getStudyListFromDB()
 
@@ -81,9 +80,9 @@ class TestAttendFrag() : Fragment() {
                 }
     }
 
-    fun itemLambda(point: Point) {
+    fun itemLambda(studyId: String) {
         val intent = Intent(requireActivity(), DetailActivity::class.java)
-        intent.putExtra("studyId",point.studyId)
+        intent.putExtra("studyId",studyId)
         startActivity(intent)
     }
 }

@@ -69,5 +69,8 @@ dependencies {
     //Firebase Realtime Database
     implementation 'com.google.firebase:firebase-database-ktx'
 
+    //Google Play Service
+    implementation 'com.google.android.gms:play-services-auth:18.1.0'
+
 
 }
