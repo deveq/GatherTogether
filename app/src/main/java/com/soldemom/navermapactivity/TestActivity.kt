@@ -31,11 +31,6 @@ import kotlinx.android.synthetic.main.activity_test.*
 
 class TestActivity : AppCompatActivity(), OnMapReadyCallback {
 
-/*    var locationPermission = false
-    var latitude = 0.0
-    var longitude = 0.0
-    var latLngChecked = false*/
-
     val REQUEST_CODE = 1004
 
     lateinit var mapFragment: MapFragment
