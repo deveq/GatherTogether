@@ -59,6 +59,7 @@ class TestActivity : AppCompatActivity(), OnMapReadyCallback {
         //각 탭에 해당하는 프래그먼트 생성 후 어댑터에 넣어주기
         adapter.fragmentList = fragmentList
         test_view_pager.adapter = adapter
+        //
 
         //ViewPager의 스와이핑으로 넘어가는 기능 없애기
         test_view_pager.isUserInputEnabled = false
