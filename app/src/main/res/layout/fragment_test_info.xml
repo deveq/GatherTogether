@@ -35,22 +35,13 @@
         android:id="@+id/info_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="진영님 안녕하세요"
+        android:text="진영"
         android:textSize="18sp"
         app:layout_constraintTop_toBottomOf="@id/info_email"
         app:layout_constraintLeft_toLeftOf="@id/info_email"
         android:layout_marginTop="16dp"
         />
 
-    <ImageView
-        android:id="@+id/info_name_edit"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        app:layout_constraintLeft_toRightOf="@id/info_name"
-        app:layout_constraintTop_toTopOf="@id/info_name"
-        android:src="@drawable/ic_baseline_edit_24"
-        android:layout_marginLeft="8dp"
-        />
     <View
         android:id="@+id/info_horizon1"
         android:layout_width="match_parent"

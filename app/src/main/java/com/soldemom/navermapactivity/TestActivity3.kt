@@ -42,23 +42,6 @@ class TestActivity3 : AppCompatActivity() {
 
         getMarkers()
 
-//        FirebaseMessaging.getInstance().token.addOnCompleteListener {task ->
-//            if (!task.isSuccessful) {
-//                Log.w(tag, "Fetching FCM registration token failed", task.exception)
-//                return@addOnCompleteListener
-//            }
-//
-//            // 새로운 FCM registration token을 얻음
-//            val token = task.result
-//            db.collection("tokens").add("token" to token!!)
-//
-//            //토큰 확인
-//            Log.d(tag, token)
-//        }
-
-
-
-
     }
 
     private fun getMarkers() {

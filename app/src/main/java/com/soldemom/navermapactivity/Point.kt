@@ -7,8 +7,6 @@ data class Point(var geoPoint: GeoPoint? = null, var title: String? = null) {
 
     constructor() : this(null, null)
 
-    //생성일
-    var createdTime: Long? = null
     // 리더 uid
     var leader: String? = null //uid넣기
     // 멤버 uid의 list
@@ -17,10 +15,9 @@ data class Point(var geoPoint: GeoPoint? = null, var title: String? = null) {
     var maxCount: Long? = null
     // 현재 인원
     var currentCount: Long? = null
-    var date: Long? = null
-    var tag: String? = null
     // 스터디 설명
     var text: String? = null
+    // 스터디의 고유 ID
     var studyId: String? = null
     //가입 대기목록
     val waitingMember= mapOf<String, String>()
