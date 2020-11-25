@@ -96,6 +96,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(naverMap: NaverMap) {
 
+
 //        val locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
 //        val enabledProviders = locationManager.getProviders(true)
 

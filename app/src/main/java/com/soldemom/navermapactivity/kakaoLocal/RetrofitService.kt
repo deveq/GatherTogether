@@ -21,4 +21,16 @@ interface RetrofitService{
         @Query("x") x: Double,
         @Query("y") y: Double
     ) : Call<DocAddr>
+
+    fun getByAdd2(
+        @Header("Authorization") appKey: String,
+        @Query("query") address: String
+    ) : Call<JsonObject>
+
+    @GET("/v2/local/geo/coord2regioncode.json")
+    fun getByGeo2(
+        @Header("Authorization") appKey: String,
+        @Query("x") x: Double,
+        @Query("y") y: Double
+    ) : Call<JsonObject>
 }

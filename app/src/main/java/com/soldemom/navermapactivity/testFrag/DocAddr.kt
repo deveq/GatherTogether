@@ -7,16 +7,18 @@ data class DocAddr(val documents: List<AddressObject>)
 data class AddressObject(
     var address_name: String,
     val x: Double,
-    val y: Double
+    val y: Double,
+
 
 ) {
+//    lateinit var depth1: String
+//    lateinit var depth2: String
+//    lateinit var depth3: String
     fun changeDepth1() {
         val add = address_name.split(" ").toMutableList()
-        Log.d("주소","변경전 : ${add[0]}")
         add[0] = addrMap[add[0]]!!
-        Log.d("주소","변경후 : ${add[0]}")
-        
-        address_name = add.joinToString(" ")
+        val tempAddr = listOf<String>(add[0], add[1])
+        address_name = tempAddr.joinToString(" ")
     }
 
     companion object {

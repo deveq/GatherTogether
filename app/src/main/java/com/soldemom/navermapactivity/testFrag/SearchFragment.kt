@@ -10,10 +10,13 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.ViewModelProviders
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.gson.JsonObject
 import com.soldemom.navermapactivity.DetailActivity
 import com.soldemom.navermapactivity.Point
 import com.soldemom.navermapactivity.R
+import com.soldemom.navermapactivity.ViewModelFactory
 import com.soldemom.navermapactivity.kakaoLocal.RetrofitHelper
 import com.soldemom.navermapactivity.kakaoLocal.RetrofitService
 import kotlinx.android.synthetic.main.fragment_search.view.*
@@ -29,7 +32,7 @@ class SearchFragment : Fragment() {
     lateinit var adapter : SearchAdapter
     lateinit var retrofitService: RetrofitService
     var selectedAddress: String = ""
-
+    lateinit var viewModel: TestVM
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,8 +41,17 @@ class SearchFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_search, container, false)
 
-        val x = 126.97794339818097
-        val y = 37.5663058756884
+        viewModel = ViewModelProviders.of(this, ViewModelFactory.getInstance())
+                .get(TestVM::class.java)
+
+
+//        val x = 126.97794339818097
+//        val y = 37.5663058756884
+
+        val x = viewModel.longitude
+        val y = viewModel.latitude
+
+
         val appKey = getString(R.string.kakao_local_app_key)
         var listView = ListView(requireContext())
         adapter = SearchAdapter(::searchFragToDetailActivity)
@@ -51,26 +63,50 @@ class SearchFragment : Fragment() {
 
         val retrofit = RetrofitHelper.getRetrofit()
         retrofitService = retrofit.create(RetrofitService::class.java)
-        retrofitService.getByGeo(appKey, x, y).enqueue(object: Callback<DocAddr>{
-            override fun onResponse(call: Call<DocAddr>, response: Response<DocAddr>) {
+//        retrofitService.getByGeo(appKey, x, y).enqueue(object: Callback<DocAddr>{
+//            override fun onResponse(call: Call<DocAddr>, response: Response<DocAddr>) {
+//                if (response.isSuccessful) {
+//                    docAddr = response.body()!!
+//                    val address = docAddr.documents[1].address_name
+//
+//                    Log.d("주소",address)
+//                    db.collection("markers").whereEqualTo("address",address)
+//                        .get().addOnSuccessListener {
+//                            studyList = it.toObjects(Point::class.java)
+//                            adapter.studyList = studyList
+//                            adapter.notifyDataSetChanged()
+//
+//                        }
+//                }
+//            }
+//
+//            override fun onFailure(call: Call<DocAddr>, t: Throwable) {
+//            }
+//        })
+
+        retrofitService.getByGeo2(appKey, x, y).enqueue(object: Callback<JsonObject> {
+            override fun onResponse(call: Call<JsonObject>, response: Response<JsonObject>) {
                 if (response.isSuccessful) {
-                    docAddr = response.body()!!
-                    val address = docAddr.documents[1].address_name
+                    val result = response.body()!!
+                    result["documents"].asJsonArray[1].asJsonObject.apply {
+                        val depth1 = this["region_1depth_name"].asString
+                        val depth2 = this["region_2depth_name"].asString
 
-                    Log.d("주소",address)
-                    db.collection("markers").whereEqualTo("address",address)
-                        .get().addOnSuccessListener {
-                            studyList = it.toObjects(Point::class.java)
-                            adapter.studyList = studyList
-                            adapter.notifyDataSetChanged()
-
-                        }
+                        val address = "$depth1 $depth2"
+                        db.collection("markers").whereEqualTo("address",address)
+                            .get().addOnSuccessListener {
+                                studyList = it.toObjects(Point::class.java)
+                                adapter.studyList = studyList
+                                adapter.notifyDataSetChanged()
+                            }
+                    }
                 }
             }
-
-            override fun onFailure(call: Call<DocAddr>, t: Throwable) {
+            override fun onFailure(call: Call<JsonObject>, t: Throwable) {
             }
         })
+
+
 
         view.search_button.setOnClickListener {
             val inputAddress = view.search_input.text.toString()
@@ -82,10 +118,10 @@ class SearchFragment : Fragment() {
                         val inputResult = response.body()!!
 
 
-                        Log.d("주소", "검색되서 나온 애는 ${inputResult.documents[0].address_name}")
                         //검색된 주소가 2개 이상이라면
                         if (inputResult.documents.size >= 2) {
                             view.search_list_empty_text.visibility = View.GONE
+
                             for (doc in inputResult.documents) {
                                 doc.changeDepth1()
                             }
@@ -99,9 +135,15 @@ class SearchFragment : Fragment() {
                                 )
                             }
 
-                            val addressList = List<String>(inputResult.documents.size) {
-                                inputResult.documents[it].address_name
+//                            val addressList = List<String>(inputResult.documents.size) {
+//                                inputResult.documents[it].address_name
+//                            }
+                            val addressSet = hashSetOf<String>()
+                            inputResult.documents.forEach {
+                                addressSet.add(it.address_name)
                             }
+                            val addressList = addressSet.toList()
+
                             listView.adapter = ArrayAdapter<String>(
                                 requireContext(),
                                 android.R.layout.simple_list_item_1,
@@ -117,7 +159,7 @@ class SearchFragment : Fragment() {
 
                             dialog.show()
 
-                            listView.setOnItemClickListener { parent, view, position, id ->
+                            listView.setOnItemClickListener { _, _, position, _ ->
                                 selectedAddress = addressList[position]
                                 Log.d("안쪽주소", "-$selectedAddress-")
 
@@ -128,6 +170,8 @@ class SearchFragment : Fragment() {
                                         studyList = it.toObjects(Point::class.java)
                                         adapter.studyList = studyList
                                         adapter.notifyDataSetChanged()
+                                        view.search_recycler_view.visibility = View.VISIBLE
+
                                         dialog.cancel();
                                     }
                             }
@@ -135,6 +179,7 @@ class SearchFragment : Fragment() {
                         }
                         else if(inputResult.documents.size == 1){
                             view.search_list_empty_text.visibility = View.GONE
+
                             inputResult.documents[0].changeDepth1()
                             selectedAddress = inputResult.documents[0].address_name
                             Log.d("안쪽주소", selectedAddress)
@@ -145,11 +190,13 @@ class SearchFragment : Fragment() {
                                     studyList = it.toObjects(Point::class.java)
                                     adapter.studyList = studyList
                                     adapter.notifyDataSetChanged()
+                                    view.search_recycler_view.visibility = View.VISIBLE
                                 }
 
 
                         } else {
                             view.search_list_empty_text.visibility = View.VISIBLE
+                            view.search_recycler_view.visibility = View.GONE
                         }
                     }
                 }

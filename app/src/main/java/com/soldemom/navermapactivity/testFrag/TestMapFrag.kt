@@ -11,20 +11,23 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelStoreOwner
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.ktx.Firebase
+import com.google.gson.JsonObject
 import com.naver.maps.geometry.LatLng
-import com.naver.maps.map.MapView
-import com.naver.maps.map.NaverMap
-import com.naver.maps.map.OnMapReadyCallback
+import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
-import com.soldemom.navermapactivity.DetailActivity
-import com.soldemom.navermapactivity.Point
+import com.soldemom.navermapactivity.*
 import com.soldemom.navermapactivity.R
 import com.soldemom.navermapactivity.kakaoLocal.RetrofitHelper
 import com.soldemom.navermapactivity.kakaoLocal.RetrofitService
@@ -38,15 +41,20 @@ class TestMapFrag : Fragment(), OnMapReadyCallback {
 
     var markerList: MutableList<Point> = mutableListOf<Point>()
     var map: NaverMap? = null
-    lateinit var kakaoAppKey : String
+    lateinit var kakaoAppKey: String
     lateinit var address: String
 
     private lateinit var mapView: MapView
     val auth = Firebase.auth
     val db = FirebaseFirestore.getInstance()
-    val intArr = listOf<Int>(2,3,4,5,6,7,8)
+    val intArr = listOf<Int>(2, 3, 4, 5, 6, 7, 8)
+
+    lateinit var viewModel: TestVM
 
     lateinit var dialogView: View
+
+    //    lateinit var naverMap: NaverMap
+    var naverMap: NaverMap? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,19 +63,26 @@ class TestMapFrag : Fragment(), OnMapReadyCallback {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_test_map, container, false)
 
+//        viewModel = ViewModelProvider(activity as ViewModelStoreOwner).get(TestVM::class.java)
+        viewModel =
+            ViewModelProviders.of(this, ViewModelFactory.getInstance()).get(TestVM::class.java)
+
         kakaoAppKey = getString(R.string.kakao_local_app_key)
 
         dialogView = inflater.inflate(R.layout.new_study_dialog_layout, container, false)
 
         dialogView.spinner2
-        val spinnerAdapter = ArrayAdapter<Int>(requireContext(),
-        android.R.layout.simple_spinner_item,
+        val spinnerAdapter = ArrayAdapter<Int>(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
             intArr
         )
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         dialogView.spinner2.adapter = spinnerAdapter
 
-         return view
+        locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
+
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -78,25 +93,54 @@ class TestMapFrag : Fragment(), OnMapReadyCallback {
     }
 
     override fun onMapReady(naverMap: NaverMap) {
+//        this.naverMap = naverMap
 
+        this.naverMap = naverMap
+
+        //지도를 꾸욱 눌렀을때 스터디를 생성할 수 있는 다이얼로그 뜨도록 함
         naverMap.setOnMapLongClickListener { _, latLng ->
 
             val retrofit = RetrofitHelper.getRetrofit()
             val retrofitService = retrofit.create(RetrofitService::class.java)
+//            retrofitService
+//                .getByGeo(kakaoAppKey, latLng.longitude, latLng.latitude)
+//                .enqueue(object : Callback<DocAddr> {
+//                    override fun onResponse(call: Call<DocAddr>, response: Response<DocAddr>) {
+//                        if (response.isSuccessful) {
+//                            val doc = response.body()!!
+//                            address = doc.documents[1].address_name
+//
+//
+//                        }
+//
+//                    }
+//
+//                    override fun onFailure(call: Call<DocAddr>, t: Throwable) {
+//                    }
+//                })
             retrofitService
-                .getByGeo(kakaoAppKey, latLng.longitude, latLng.latitude)
-                .enqueue(object: Callback<DocAddr>{
-                    override fun onResponse(call: Call<DocAddr>, response: Response<DocAddr>) {
+                .getByGeo2(kakaoAppKey, latLng.longitude, latLng.latitude)
+                .enqueue(object: Callback<JsonObject> {
+                    override fun onResponse(
+                        call: Call<JsonObject>,
+                        response: Response<JsonObject>
+                    ) {
                         if (response.isSuccessful) {
-                            val doc = response.body()!!
-                            address = doc.documents[1].address_name
-                        }
+                            val result = response.body()!!
+                            result["documents"].asJsonArray[1].asJsonObject.apply {
+                                val depth1 = this["region_1depth_name"].asString
+                                val depth2 = this["region_2depth_name"].asString
 
+                                address = "$depth1 $depth2"
+                            }
+
+                        }
                     }
 
-                    override fun onFailure(call: Call<DocAddr>, t: Throwable) {
+                    override fun onFailure(call: Call<JsonObject>, t: Throwable) {
                     }
                 })
+
 
             if (dialogView.getParent() != null) {
                 (dialogView.getParent() as ViewGroup).removeView(
@@ -104,7 +148,7 @@ class TestMapFrag : Fragment(), OnMapReadyCallback {
                 )
             }
 
-            dialogView.apply{
+            dialogView.apply {
                 dialog_title_input.setText("")
                 dialog_content_input.setText("")
             }
@@ -137,8 +181,8 @@ class TestMapFrag : Fragment(), OnMapReadyCallback {
                     //트랜잭션으로 일괄업로드
                     db.runBatch { batch ->
                         val markerId: String = markerRef2.id
-                        batch.set(markerRef2,point)
-                        batch.update(userRef,"studyList",FieldValue.arrayUnion(markerId))
+                        batch.set(markerRef2, point)
+                        batch.update(userRef, "studyList", FieldValue.arrayUnion(markerId))
 
                     }.addOnSuccessListener {
                         Toast.makeText(requireContext(), "다성공~", Toast.LENGTH_SHORT).show()
@@ -153,7 +197,7 @@ class TestMapFrag : Fragment(), OnMapReadyCallback {
         //기존에 트랜잭션만 사용한 후 맵에 marker만 추가했을 경우 클릭이벤트처리가 되지 않던 문제 해결
         db.collection("markers").addSnapshotListener { snapshot, e ->
             if (e != null) {
-                Log.w("TestMapFrag","snapshot Error",e)
+                Log.w("TestMapFrag", "snapshot Error", e)
                 return@addSnapshotListener
             }
 
@@ -166,7 +210,7 @@ class TestMapFrag : Fragment(), OnMapReadyCallback {
                     position = latLng
                     map = naverMap
                     setOnClickListener {
-                        Toast.makeText(requireContext(),"마커 클릭됨",Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "마커 클릭됨", Toast.LENGTH_SHORT).show()
                         val intent = Intent(requireContext(), DetailActivity::class.java)
                         intent.putExtra("studyId", marker.studyId)
                         startActivity(intent)
@@ -175,6 +219,17 @@ class TestMapFrag : Fragment(), OnMapReadyCallback {
                 }
             }
         }
+
+        // viewModel에 저장된 위치로 카메라 이동
+        val latLng = LatLng(viewModel.latitude, viewModel.longitude)
+        val cameraUpdate = CameraUpdate.scrollTo(latLng).animate(CameraAnimation.Easing)
+        naverMap.moveCamera(cameraUpdate)
+
+        // 현위치 똥글이 지도 표시
+        naverMap.locationSource = locationSource
+        naverMap.locationTrackingMode = LocationTrackingMode.NoFollow
+
+
     }
 
     override fun onStart() {
@@ -188,6 +243,7 @@ class TestMapFrag : Fragment(), OnMapReadyCallback {
 
         //다른 프래그먼트로 넘어갔다가 돌아오면 다시 맵에 마커 표시
         mapView.getMapAsync(this)
+        Log.d("지도", "onResume")
 
     }
 
@@ -218,5 +274,20 @@ class TestMapFrag : Fragment(), OnMapReadyCallback {
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (locationSource.onRequestPermissionsResult(requestCode, permissions, grantResults)) {
+            if (!locationSource.isActivated) {
+                Log.d("지도", "추적 꺼짐")
+                naverMap!!.locationTrackingMode = LocationTrackingMode.None
+            }
+            return
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 }

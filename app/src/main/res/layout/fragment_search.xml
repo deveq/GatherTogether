@@ -23,6 +23,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="동네 혹은 구로 검색"
+        android:inputType="text"
         app:layout_constraintTop_toBottomOf="@id/search_title"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/search_button"
@@ -54,11 +55,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="해당 지역에 검색된 스터디가 없습니다."
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_input"
+        android:layout_marginTop="32dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintVertical_bias="0.15"
         android:visibility="gone"/>
 
 

@@ -9,6 +9,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProviders
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -22,9 +24,11 @@ class LoginActivity : AppCompatActivity() {
     lateinit var db: FirebaseFirestore
     var pwChecked: Boolean = false
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
 
         val intent = Intent(this, TestActivity3::class.java)
 
@@ -118,4 +122,5 @@ class LoginActivity : AppCompatActivity() {
 
 
     }
+
 }

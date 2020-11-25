@@ -28,7 +28,6 @@ class TestActivity3 : AppCompatActivity() {
     val auth = Firebase.auth
     val db = FirebaseFirestore.getInstance()
     lateinit var markerList: MutableList<Point>
-    lateinit var viewModel: TestVM
     val mapFrag = TestMapFrag()
 
     override fun onCreate(savedInstanceState: Bundle?) {
