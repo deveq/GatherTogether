@@ -31,11 +31,13 @@ class SearchAdapter(
         holder.itemView.setOnClickListener {
             searchFragToDetailActivity(point.studyId!!)
         }
-        point.image?.let {imageUri ->
+        if (point.image != null) {
             Glide
                 .with(activity)
-                .load(imageUri)
+                .load(point.image)
                 .into(holder.searchImage)
+        } else {
+            holder.searchImage.setImageDrawable(activity.getDrawable(R.drawable.ic_android_black_24dp))
         }
 
     }

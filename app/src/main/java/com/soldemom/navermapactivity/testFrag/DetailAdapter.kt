@@ -33,12 +33,13 @@ class DetailAdapter(
             }
         }
 
-//        이미지는 나중에..
-//        holder.memberImage
-        user.image?.let {imageUri ->
-            Glide.with(activity)
-                .load(imageUri)
+        if (user.image != null) {
+            Glide
+                .with(activity)
+                .load(user.image)
                 .into(holder.memberImage)
+        } else {
+            holder.memberImage.setImageDrawable(activity.getDrawable(R.drawable.ic_android_black_24dp))
         }
 
         holder.memberIntroduce.text = user.introduce

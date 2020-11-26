@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">NaverMapActivity</string>
+    <string name="app_name">Study Together</string>
     <string-array name="member_count">
         <item>2</item>
         <item>3</item>
