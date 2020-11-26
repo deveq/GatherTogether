@@ -23,4 +23,6 @@ data class Point(var geoPoint: GeoPoint? = null, var title: String? = null) {
     val waitingMember= mapOf<String, String>()
     //주소
     var address: String? = null
+    //스터디 이미지
+    var image: String? = null
 }

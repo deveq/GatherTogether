@@ -1,13 +1,17 @@
 package com.soldemom.navermapactivity.testFrag
 
+import android.app.Activity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.soldemom.navermapactivity.R
 import com.soldemom.navermapactivity.User
 
-class DetailAdapter : RecyclerView.Adapter<DetailViewHolder>() {
+class DetailAdapter(
+    val activity: Activity
+) : RecyclerView.Adapter<DetailViewHolder>() {
 
     var memberList = listOf<User>()
     var leader: String = ""
@@ -31,6 +35,13 @@ class DetailAdapter : RecyclerView.Adapter<DetailViewHolder>() {
 
 //        이미지는 나중에..
 //        holder.memberImage
+        user.image?.let {imageUri ->
+            Glide.with(activity)
+                .load(imageUri)
+                .into(holder.memberImage)
+        }
+
+        holder.memberIntroduce.text = user.introduce
 
 
     }

@@ -8,6 +8,8 @@ class DetailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     val memberName = itemView.member_name
     val memberLeader = itemView.member_leader
     val memberImage = itemView.member_image
+    val memberIntroduce = itemView.member_introduce
+
 
 
 }

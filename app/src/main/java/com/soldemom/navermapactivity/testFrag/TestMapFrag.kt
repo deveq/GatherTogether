@@ -2,6 +2,7 @@ package com.soldemom.navermapactivity.testFrag
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -102,22 +103,7 @@ class TestMapFrag : Fragment(), OnMapReadyCallback {
 
             val retrofit = RetrofitHelper.getRetrofit()
             val retrofitService = retrofit.create(RetrofitService::class.java)
-//            retrofitService
-//                .getByGeo(kakaoAppKey, latLng.longitude, latLng.latitude)
-//                .enqueue(object : Callback<DocAddr> {
-//                    override fun onResponse(call: Call<DocAddr>, response: Response<DocAddr>) {
-//                        if (response.isSuccessful) {
-//                            val doc = response.body()!!
-//                            address = doc.documents[1].address_name
-//
-//
-//                        }
-//
-//                    }
-//
-//                    override fun onFailure(call: Call<DocAddr>, t: Throwable) {
-//                    }
-//                })
+
             retrofitService
                 .getByGeo2(kakaoAppKey, latLng.longitude, latLng.latitude)
                 .enqueue(object: Callback<JsonObject> {
@@ -159,7 +145,6 @@ class TestMapFrag : Fragment(), OnMapReadyCallback {
                 .setPositiveButton("확인") { _, _ ->
                     val title = dialogView.dialog_title_input.text.toString()
                     val content = dialogView.dialog_content_input.text.toString()
-//                    val maxCount = dialogView.dialog_member_count_input.text.toString().toLong()
                     val maxCount = intArr[dialogView.spinner2.selectedItemPosition]
 
                     val geoPoint = GeoPoint(latLng.latitude, latLng.longitude)
@@ -209,6 +194,7 @@ class TestMapFrag : Fragment(), OnMapReadyCallback {
                     val latLng = LatLng(latitude, longitude)
                     position = latLng
                     map = naverMap
+                    captionText = marker.title!!
                     setOnClickListener {
                         Toast.makeText(requireContext(), "마커 클릭됨", Toast.LENGTH_SHORT).show()
                         val intent = Intent(requireContext(), DetailActivity::class.java)

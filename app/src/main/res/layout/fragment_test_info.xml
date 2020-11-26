@@ -17,6 +17,7 @@
         android:src="@drawable/ic_android_black_24dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
+       android:layout_marginTop="16dp"
         />
 
     <TextView
@@ -24,7 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="test1@nav.com"
-        android:textSize="18sp"
+        android:textSize="12sp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="@id/info_profile_image"
         app:layout_constraintLeft_toRightOf="@id/info_profile_image"
@@ -42,14 +43,24 @@
         android:layout_marginTop="16dp"
         />
 
+    <TextView
+        android:id="@+id/info_introduce"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        app:layout_constraintTop_toBottomOf="@id/info_name"
+        app:layout_constraintLeft_toLeftOf="@id/info_name"
+        android:layout_marginTop="8dp"
+        />
+
     <View
         android:id="@+id/info_horizon1"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@android:color/darker_gray"
-        app:layout_constraintTop_toBottomOf="@id/info_profile_image"
+        app:layout_constraintTop_toBottomOf="@id/info_introduce"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="30dp"
         />
 
     <TextView

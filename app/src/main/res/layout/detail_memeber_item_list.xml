@@ -24,6 +24,15 @@
         app:layout_constraintBottom_toBottomOf="parent"/>
 
     <TextView
+        android:id="@+id/member_introduce"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@id/member_name"
+        app:layout_constraintLeft_toRightOf="@id/member_name"
+        android:layout_marginLeft="32dp"
+        />
+
+    <TextView
         android:id="@+id/member_leader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -34,5 +43,6 @@
         android:textColor="#aa55"
         android:visibility="gone"
         />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

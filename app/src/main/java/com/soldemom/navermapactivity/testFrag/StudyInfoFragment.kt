@@ -1,20 +1,31 @@
 package com.soldemom.navermapactivity.testFrag
 
+import android.Manifest
+import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
+import android.provider.Settings
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import com.karumi.dexter.Dexter
+import com.karumi.dexter.listener.single.DialogOnDeniedPermissionListener
+import com.karumi.dexter.listener.single.PermissionListener
 import com.soldemom.navermapactivity.MemberApproveActivity
 import com.soldemom.navermapactivity.Point
 import com.soldemom.navermapactivity.R
@@ -36,6 +47,7 @@ class StudyInfoFragment(val studyId: String) : Fragment() {
     lateinit var studyIdRef: DocumentReference
     lateinit var usersRef: CollectionReference
     lateinit var uid: String
+    lateinit var fragView: View
 
 
     override fun onCreateView(
@@ -44,9 +56,23 @@ class StudyInfoFragment(val studyId: String) : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
 
-        val view = inflater.inflate(R.layout.fragment_study_info, container, false)
+        fragView = inflater.inflate(R.layout.fragment_study_info, container, false)
 
-        view.apply {
+
+        dialogPermissionListener =
+        DialogOnDeniedPermissionListener.Builder
+            .withContext(requireContext())
+            .withTitle("저장소 권한 요청")
+            .withMessage("프로필 사진 업로드를 위해\n외부 저장소의 권한이 필요합니다.")
+            .withButtonText("권한 설정하러 가기") {
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                val uri = Uri.fromParts("package",requireActivity().packageName, null)
+                intent.data = uri
+                startActivity(intent)
+            }
+            .build()
+
+        fragView.apply {
 
             uid = auth.currentUser!!.uid
             usersRef = db.collection("users")
@@ -66,7 +92,7 @@ class StudyInfoFragment(val studyId: String) : Fragment() {
                 requireActivity().finish()
             }
         }
-        return view
+        return fragView
     }
 
 
@@ -76,12 +102,19 @@ class StudyInfoFragment(val studyId: String) : Fragment() {
             //해당 스터디의 point객체를 받음
             point = it.toObject(Point::class.java)!!
 
+            point.image?.let {imageUri ->
+                Glide.with(requireContext())
+                    .load(imageUri)
+                    .centerCrop()
+                    .into(detail_profile_image)
+            }
+
             //해당 모임에 가입되어있을 경우 가입/탈퇴 버튼 처리
             if (point.member!!.contains(uid)) {
 
                 memberBelongs = true
 
-                //자신이 리더일때 탈퇴버튼은 보이지 않도록, 승인버튼은 보이도록
+                //자신이 리더일때 탈퇴버튼은 보이지 않도록, 승인버튼은 보이도록, 이미지 수정 가능하도록
                 if (point.leader == uid) {
                     attend_btn.visibility = View.INVISIBLE
                     //가입승인버튼 보이기
@@ -90,9 +123,26 @@ class StudyInfoFragment(val studyId: String) : Fragment() {
                         val intent = Intent(requireActivity(), MemberApproveActivity::class.java)
                         intent.putExtra("studyId", point.studyId)
                         startActivity(intent)
-//                        finish()
                         requireActivity().finish()
                     }
+
+                    detail_profile_image.setOnClickListener {
+                        Dexter
+                            .withContext(requireContext())
+                            .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                            .withListener(dialogPermissionListener)
+                            .check()
+
+                        val imageIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                        imageIntent.putExtra("number",5)
+                        requireActivity().startActivityForResult(imageIntent, REQ_IMAGE_CODE)
+                    }
+
+
+
+
+
+
 
                 } else {
                     //멤버라면
@@ -109,9 +159,6 @@ class StudyInfoFragment(val studyId: String) : Fragment() {
                 }
             }
 
-
-
-
             usersRef.document(point.leader!!).get()
                 .addOnSuccessListener {
                     leaderUser = it.toObject(User::class.java)!!
@@ -121,7 +168,7 @@ class StudyInfoFragment(val studyId: String) : Fragment() {
                 .addOnSuccessListener {
                     memberList = it.toObjects(User::class.java)
 
-                    detailAdapter = DetailAdapter()
+                    detailAdapter = DetailAdapter(requireActivity())
                     detail_participants_recycler_view.adapter = detailAdapter
                     detailAdapter.memberList = memberList
                     detailAdapter.notifyDataSetChanged()
@@ -195,5 +242,24 @@ class StudyInfoFragment(val studyId: String) : Fragment() {
                 }.create().show()
         }
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.d("Result임둥","$requestCode - 내가 보낸값은 1001인데..")
+        if (requestCode == REQ_IMAGE_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                val image: Uri = data!!.data!!
+                val bitmap = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, image)
+                fragView.detail_profile_image.setImageBitmap(bitmap)
+
+            }
+        }
+    }
+
+    companion object {
+        const val REQ_IMAGE_CODE = 1001
+    }
+
+    lateinit var dialogPermissionListener: PermissionListener
 
 }

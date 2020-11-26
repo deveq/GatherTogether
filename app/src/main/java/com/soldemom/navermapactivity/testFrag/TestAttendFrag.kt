@@ -34,7 +34,7 @@ class TestAttendFrag() : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_test_attend, container, false)
 
-        adapter = SearchAdapter(::itemLambda)
+        adapter = SearchAdapter(::itemLambda, requireActivity())
         adapter.studyList = mutableListOf()
 
         view.test_recycler_view.also {

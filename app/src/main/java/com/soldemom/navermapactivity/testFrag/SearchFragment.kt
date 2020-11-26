@@ -54,7 +54,7 @@ class SearchFragment : Fragment() {
 
         val appKey = getString(R.string.kakao_local_app_key)
         var listView = ListView(requireContext())
-        adapter = SearchAdapter(::searchFragToDetailActivity)
+        adapter = SearchAdapter(::searchFragToDetailActivity, requireActivity())
 
         adapter.studyList = studyList
         view.search_recycler_view.adapter = adapter
