@@ -17,8 +17,11 @@ data class AddressObject(
     fun changeDepth1() {
         val add = address_name.split(" ").toMutableList()
         add[0] = addrMap[add[0]]!!
-        val tempAddr = listOf<String>(add[0], add[1])
-        address_name = tempAddr.joinToString(" ")
+        add.removeAt(add.size-1)
+//        val tempAddr = listOf<String>(add[0], add[1])
+        address_name = add.joinToString(" ")
+
+
     }
 
     companion object {

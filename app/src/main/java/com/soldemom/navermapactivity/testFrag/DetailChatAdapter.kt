@@ -12,7 +12,7 @@ import kotlinx.android.synthetic.main.detail_chat_list_item.view.*
 import java.lang.RuntimeException
 import java.text.SimpleDateFormat
 
-class DetailChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class DetailChatAdapter(val memberMap: HashMap<String,String>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     var chatList : MutableList<Chat> = mutableListOf<Chat>()
     lateinit var user: User
     lateinit var currentUserUid: String
@@ -87,7 +87,9 @@ class DetailChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
                 }
 
-                holder.chatName.text = user.name
+                // 스터디 가입된 사람들의 이름을 가진 map을 만들고 key값으로 uid를 넣어서
+                // value값을 holder.chatName에 넣어주기
+                holder.chatName.text = memberMap[chat.uid]
                 holder.chatText.text = chat.text
 
                 val sdf = SimpleDateFormat("HH:mm")

@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.provider.Settings
+import android.text.InputType
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -84,6 +85,7 @@ class TestInfoFrag : Fragment() {
         view.info_my_account.setOnClickListener {
 
             val editName = EditText(requireContext())
+            editName.inputType = InputType.TYPE_CLASS_TEXT
 
             if (editName.parent != null) {
                 (editName.parent as ViewGroup).removeView(editName)
@@ -110,6 +112,7 @@ class TestInfoFrag : Fragment() {
         view.info_introduce.setOnClickListener {
 
             val editIntro = EditText(requireContext())
+            editIntro.inputType = InputType.TYPE_CLASS_TEXT
 
             if (editIntro.parent != null) {
                 (editIntro.parent as ViewGroup).removeView(editIntro)

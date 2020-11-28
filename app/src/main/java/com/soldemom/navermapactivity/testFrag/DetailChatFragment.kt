@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
@@ -31,6 +32,7 @@ class DetailChatFragment(val studyId: String) : Fragment() {
     lateinit var user: User
     lateinit var adapter: DetailChatAdapter
     var dateTemp: String? = null
+    lateinit var viewModel: DetailViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,6 +41,10 @@ class DetailChatFragment(val studyId: String) : Fragment() {
         // Inflate the layout for this fragment
         fragView = inflater.inflate(R.layout.fragment_detail_chat, container, false)
 
+
+        viewModel = ViewModelProvider(requireActivity()).get(DetailViewModel::class.java)
+
+        adapter = DetailChatAdapter(viewModel.memberMap)
 
         val uid = auth.currentUser?.uid ?: ""
 
@@ -56,7 +62,7 @@ class DetailChatFragment(val studyId: String) : Fragment() {
 
                     setSendBtn()
 
-                    adapter = DetailChatAdapter()
+
                     adapter.user = user
 
                     fragView.detail_chat_recycler_view.adapter = adapter

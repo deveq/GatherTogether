@@ -16,6 +16,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.CollectionReference
@@ -48,6 +49,7 @@ class StudyInfoFragment(val studyId: String) : Fragment() {
     lateinit var usersRef: CollectionReference
     lateinit var uid: String
     lateinit var fragView: View
+    lateinit var viewModel: DetailViewModel
 
 
     override fun onCreateView(
@@ -57,6 +59,10 @@ class StudyInfoFragment(val studyId: String) : Fragment() {
         // Inflate the layout for this fragment
 
         fragView = inflater.inflate(R.layout.fragment_study_info, container, false)
+
+        //StudyInfoFrag와 DetailChatFrag는 동일한 DetailActivity에 부착되어있으므로
+        //ViewModel Owner가 같으므로 viewModel 공유 가능.
+        viewModel = ViewModelProvider(requireActivity()).get(DetailViewModel::class.java)
 
 
         dialogPermissionListener =
@@ -167,6 +173,13 @@ class StudyInfoFragment(val studyId: String) : Fragment() {
             usersRef.whereIn("uid", point.member!!).get()
                 .addOnSuccessListener {
                     memberList = it.toObjects(User::class.java)
+
+                    val memberMap = hashMapOf<String,String>()
+
+                    memberList.forEach {
+                        memberMap.put(it.uid, it.name!!)
+                    }
+                    viewModel.memberMap = memberMap
 
                     detailAdapter = DetailAdapter(requireActivity())
                     detail_participants_recycler_view.adapter = detailAdapter
