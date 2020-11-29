@@ -99,5 +99,37 @@ Kakao Local API를 이용하여 처음 화면에는 현재 위치의 위도, 경
 
 
 ### 기능 설명
+1. 채팅방
+Chat객체에 
+<pre><code>
+    // DetailChatAdapter.kt
+    
+    
+    override fun getItemViewType(position: Int): Int {
+        // Chat객체의 type에 Chat.CHAT_TYPE 혹은 Chat.DATE_TYPE 2가지 값이 들어갈 수 있고
+        // 해당 TYPE을 반환해주는 getItemViewType메서드를 override함.
+        return chatList[position].type
+    }
+    
+    // getItemViewType에서 반환된 viewType을 이용해서 ChatList에 있는 값이 채팅인지 날짜인지 구분함
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val view : View
+        val inflater = LayoutInflater.from(parent.context)
 
+        // viewType에 따라서 반환해주는 ViewHolder를 다르게.
+        return when (viewType) {
+            Chat.CHAT_TYPE -> {
+                view = inflater.inflate(R.layout.detail_chat_list_item, parent, false)
+                DetailChatViewHolder(view)
+            }
+            Chat.DATE_TYPE -> {
+                view = inflater.inflate(R.layout.detail_chat_date_list_item, parent, false)
+                DetailChatDateViewHolder(view)
+            }
+            else -> throw RuntimeException("알 수 없는 뷰 타입 에러")
+        }
+    }
+</pre></code>
+2. NaverMap API
+3. Kakao Local API
 ### 마치며
