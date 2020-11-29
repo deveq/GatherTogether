@@ -16,11 +16,21 @@
 
 #### 사용 라이브러리
 1. Naver Map API
-2. Kakao Local API (주소 <-> LatLng)
-3. Firebase (Firestore, RealtimeDatabase, Storage, Authentication)
+    - 지도로 스터디 찾기
+2. Kakao Local API
+    - 검색으로 스터디 찾기 
+    - 주소 <-> LatLng
+3. Firebase 
+    - Firestore : 스터디 정보, 회원정보 
+    - RealtimeDatabase : 채팅방
+    - Storage : 스터디 이미지, 프로필 이미지
+    - Authentication : 이메일로 가입, 구글로그인
 4. Retrofit
+    - Kakao Local API에 REST API로 데이터를 요청하고 받기 위해 사용
 5. Glide
+    - 스터디 이미지, 사용자의 프로필 이미지 표시
 6. Dexter
+    - 권한 요청
 
 ## 순서
 - 0. 완성 화면
