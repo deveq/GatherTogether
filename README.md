@@ -23,7 +23,7 @@
 3. Firebase 
     - Firestore : 스터디 정보, 회원정보 
     - RealtimeDatabase : 채팅방
-    - Storage : 스터디 이미지, 프로필 이미지
+    - Storage : 스터디 이미지, 사용자 프로필 이미지
     - Authentication : 이메일로 가입, 구글로그인
 4. Retrofit
     - Kakao Local API에 REST API로 데이터를 요청하고 받기 위해 사용
