@@ -1,7 +1,6 @@
 # StudyTogether
 개인프로젝트. 다함께 스터디. 함께 공부하기 위한 스터디 앱
 
-# Todo List
 #### 개인프로젝트, Kotlin, Android Studio
 #### 개발기간 : 2020.10.31 ~ 2020.11.29
 
