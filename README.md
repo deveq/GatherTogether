@@ -100,23 +100,22 @@ Kakao Local API를 이용하여 처음 화면에는 현재 위치의 위도, 경
 
 ### 기능 설명
 1. 채팅방
-Chat객체에 
 <pre><code>
     // DetailChatAdapter.kt
     
     
     override fun getItemViewType(position: Int): Int {
         // Chat객체의 type에 Chat.CHAT_TYPE 혹은 Chat.DATE_TYPE 2가지 값이 들어갈 수 있고
-        // 해당 TYPE을 반환해주는 getItemViewType메서드를 override함.
+        // 해당 TYPE을 반환해주는 getItemViewType메서드를 override합니다.
         return chatList[position].type
     }
     
-    // getItemViewType에서 반환된 viewType을 이용해서 ChatList에 있는 값이 채팅인지 날짜인지 구분함
+    // getItemViewType에서 반환된 viewType을 이용해서 ChatList에 있는 값이 채팅인지 날짜인지 구분합니다
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view : View
         val inflater = LayoutInflater.from(parent.context)
 
-        // viewType에 따라서 반환해주는 ViewHolder를 다르게.
+        // viewType에 따라서 반환해주는 ViewHolder를 다르게 해줍니다.
         return when (viewType) {
             Chat.CHAT_TYPE -> {
                 view = inflater.inflate(R.layout.detail_chat_list_item, parent, false)
@@ -129,7 +128,41 @@ Chat객체에
             else -> throw RuntimeException("알 수 없는 뷰 타입 에러")
         }
     }
-</pre></code>
+</code></pre>
+
 2. NaverMap API
+MainMapFragment가 OnMapReadyCallback 인터페이스를 구현할 수 있도록한 후 onMapReady 메서드를 오버라이드합니다.
+mapView가 로딩이 완료된 이후 getMapAsync를 통해 naverMap객체를 사용할 수 있는 onMapReady가 호출될 수 있게 한 후
+LongClick에 대한 이벤트처리, Firebase Firestore에 저장된 Marker에 대한 정보(Point객체)를 받아 Marker로 표시할 수 있게 합니다.
+
 3. Kakao Local API
+REST API를 이용하여 GET방식으로 동이름 <-> 위,경도 정보를 받을 수 있는 API입니다.
+(Naver Geolocation을 사용하려 하였으나 무료건수가 1000건이었기 때문에 무료인 Kakao Local API를 사용하였습니다.)
+Retrofit을 이용하여 통신하였고, repsonse로 받는 정보 중 시(혹은 도) 이름인 depth1과 구 이름인 depth2를 이용해 주소를 받아왔습니다.
+해당 API는 스터디 생성시, 리스트검색시 사용되었습니다.
+<pre><code>
+interface RetrofitService{
+
+    //동 이름으로 DocAddr객체를 받아옵니다.
+    //리스트로 검색 시 동 이름만 검색하여 주소를 받아온 후
+    //그 주소와 동일한 Marker에 대한 정보를 Firestore를 통해 whereIn문으로 얻어올 수 있습니다.
+    @GET("/v2/local/search/address.json")
+    fun getByAdd(
+        @Header("Authorization") appKey: String,
+        @Query("query") address: String
+    ) : Call<DocAddr>
+
+    //위도,경도 정보를 통해 JsonObject를 콜백으로 받습니다.
+    //리스트검색의 첫 화면에는 사용자의 위치정보를 통해 해당 지역의 정보를 얻은 다음
+    //그 지역 내에 존재하는 스터디의 목록을 나타낼 수 있도록 하였습니다.
+    //또 스터디 생성시 표시되는 지역명 또한 아래의 메서드를 통해 얻습니다.
+    @GET("/v2/local/geo/coord2regioncode.json")
+    fun getByGeo(
+        @Header("Authorization") appKey: String,
+        @Query("x") x: Double,
+        @Query("y") y: Double
+    ) : Call<JsonObject>
+}
+</code></pre>
+
 ### 마치며
