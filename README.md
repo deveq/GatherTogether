@@ -67,7 +67,7 @@ Google 로그인 시 google계정에 설정한 이름으로 닉네임이 설정�
 
 스터디를 생성하고자 하는 위치를 LongClick 시 생성을 위한 다이얼로그가 나타납니다.<br>
 이름 옆 이미지 부분을 클릭하면 이미지의 Uri를 얻기위해 ACTION_APPLICATION_DETAILS_SETTINGS의 action 키워드를 가진 intent를 실행하게 되고<br>
-사진 선택 후 해당 uir를 통해 Firebase Storage에 스터디의 이미지를 업로드할 수 있습니다. <br>
+사진 선택 후 해당 URI를 통해 Firebase Storage에 스터디의 이미지를 업로드할 수 있습니다. <br>
 
 4. 스터디의 채팅방(대화방)<br>
 ![2_4 chat](https://user-images.githubusercontent.com/66777885/100547898-9e81c300-32ac-11eb-9e89-93154553e65d.gif)
